@@ -33,7 +33,7 @@ export default {
 
   mounted() {
     axios
-      .get("http://localhost:8000/api/v1/histories?limit=25&ordering=-id")
+      .get("http://localhost:8001/api/v1/histories?limit=25&ordering=-id")
       .then(data => {
         this.payloads = data.data.results;
       });

@@ -44,7 +44,7 @@ export default {
       
       axios
         .get(
-          "http://localhost:8000/api/v1/contacts?limit=25&offset=" +
+          "http://localhost:8001/api/v1/contacts?limit=25&offset=" +
             25 * (val - 1)
         )
         .then(data => {
@@ -58,7 +58,7 @@ export default {
   },
 
   mounted() {
-    axios.get("http://localhost:8000/api/v1/contacts?limit=25").then(data => {
+    axios.get("http://localhost:8001/api/v1/contacts?limit=25").then(data => {
       this.payloads = data.data.results;
 
       this.canPrev = data.data.previous;

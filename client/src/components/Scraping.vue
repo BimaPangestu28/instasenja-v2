@@ -114,7 +114,7 @@ export default {
       this.data.random_code = this.randomCode;
 
       axios
-        .post("http://localhost:8000/api/v1/actions/scraping-data", this.data)
+        .post("http://localhost:8001/api/v1/actions/scraping-data", this.data)
         .then(() => {
           this.data = {
             keyword: ""

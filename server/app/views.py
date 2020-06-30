@@ -152,3 +152,27 @@ class ActionFollowFromCompetitorView(generics.CreateAPIView):
         instagram.follow_from_competitor(serializer.data["username_competitor"], serializer.data["total_follow"])
 
         return Response(data={}, status=200)
+
+class ActionMultiplePostView(generics.CreateAPIView):
+    serializer_class = serializers.PayloadActionMultiplePostSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        instagram = Instagram(serializer.data, mobile=True)
+        instagram.multiple_post(serializer.data["title"], serializer.data["description"], serializer.data["image"], serializer.data["accounts"])
+
+        return Response(data={}, status=200)
+
+class ActionFollowFromPostView(generics.CreateAPIView):
+    serializer_class = serializers.PayloadActionFollowFromPostSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        instagram = Instagram(serializer.data)
+        instagram.follow_from_post(serializer.data["url"])
+
+        return Response(data={}, status=200)

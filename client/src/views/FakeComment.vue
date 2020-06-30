@@ -103,7 +103,7 @@ export default {
     paginateSelect(val) {
       axios
         .get(
-          "http://localhost:8000/api/v1/fake-comments?limit=25&offset=" + 25 * (val - 1)
+          "http://localhost:8001/api/v1/fake-comments?limit=25&offset=" + 25 * (val - 1)
         )
         .then(data => {
           this.payloads = data.data.results;
@@ -117,7 +117,7 @@ export default {
 
   methods: {
     submit() {
-      axios.post("http://localhost:8000/api/v1/fake-comments", this.data).then(data => {
+      axios.post("http://localhost:8001/api/v1/fake-comments", this.data).then(data => {
         this.payloads.push(data.data);
         this.showForm = false;
       });
@@ -131,7 +131,7 @@ export default {
       ) {
         axios
           .delete(
-            "http://localhost:8000/api/v1/fake-comments/" + this.payloads[index].id
+            "http://localhost:8001/api/v1/fake-comments/" + this.payloads[index].id
           )
           .then(() => {
             this.payloads.splice(index, 1);
@@ -143,7 +143,7 @@ export default {
   },
 
   mounted() {
-    axios.get("http://localhost:8000/api/v1/fake-comments?limit=25").then(data => {
+    axios.get("http://localhost:8001/api/v1/fake-comments?limit=25").then(data => {
       this.payloads = data.data.results;
 
       this.canPrev = data.data.previous;

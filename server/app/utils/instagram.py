@@ -10,10 +10,13 @@ from app import models
 import traceback
 import time
 import random
+import base64
+import os
+import string
 
 class Instagram(WebDriver):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data, mobile=False):
+        super().__init__(data, mobile)
 
     def redirect_to_login_page(self):
         self.browser.get("https://www.instagram.com/accounts/login/")
@@ -129,10 +132,15 @@ class Instagram(WebDriver):
                 time.sleep(3)
                 self.redirect_to(self.data["url"])
 
-                if total_like <= self.data["total_like"]:
-                    time.sleep(3)
+                if self.data["total_like"] > 0:
+                    if total_like <= self.data["total_like"]:
+                        print("break")
+                        break
+
+                time.sleep(3)
                 # self.comment_post("Keren mas mantul")
                 self.like_post(bot.username)
+
                 time.sleep(3)
                 self.logout()
                 time.sleep(5)
@@ -242,5 +250,107 @@ class Instagram(WebDriver):
 
             actionChain.key_down(Keys.CONTROL).click(following_list).key_up(Keys.CONTROL).perform()
             actionChain.key_down(Keys.SPACE).key_up(Keys.SPACE).perform()
+
+        self.browser.close()
+
+    def randomString(self, stringLength=8):
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(stringLength))
+
+    def multiple_post(self, title, description, image, accounts):
+        image_path = os.getcwd() + "/assets/images/" + self.randomString(20) + ".png"
+        
+        with open(image_path, "wb") as fh:
+            fh.write(base64.b64decode(image.split("data:image/png;base64")[1]))
+
+        for account in accounts:
+            self.login(account["username"], account["password"])
+            self.redirect_to("https://instagram.com")
+
+            time.sleep(3)
+
+            try:
+                self.browserWait.until(
+                presence_of_element_located((By.XPATH, "//*[contains(text(), 'Cancel')]"))).click()
+            except Exception as identifier:
+                pass
+
+            time.sleep(4)
+
+            try:
+                self.browserWait.until(presence_of_element_located((By.XPATH, "//*[contains(text(), 'Not Now')]"))).click()
+            except Exception as identifier:
+                pass
+
+            # self.browser.find_elements_by_xpath('//*[@aria-label="New Post"]')[0].click()
+            # self.browser.switch_to.active_element.send_keys(image_path)
+            self.browser.find_elements_by_xpath('//*[@class="tb_sK"]')[3].send_keys(image_path)
+            self.browser.find_elements_by_xpath('//*[@class="Q9en_"]')[0].submit()
+
+            time.sleep(2)
+            self.browser.find_elements_by_xpath('//*[contains(text(), "Next")]')[0].click()
+            self.browser.find_elements_by_xpath('//*[@aria-label="Write a caption…"]')[0].send_keys(description)
+            time.sleep(2)
+            self.browser.find_elements_by_xpath('//*[contains(text(), "Share")]')[0].click()
+
+
+    def follow_from_post(self, url):
+        # Login instagram
+        self.login(self.data["username"], self.data["password"])
+
+        time.sleep(3)
+
+        # Redirect ke postingan
+        self.redirect_to(url)
+
+        time.sleep(3)
+
+        # Klik daftar menyukai
+        self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/div[1]/article/div[2]/section[2]/div/div/button').click()
+
+        time.sleep(3)
+
+        # Ambil data pengguna yang menyukai
+        following_list = self.browser.find_element_by_xpath('/html/body/div[4]/div/div/div[2]/div/div')
+
+        following_list.click()
+        actionChain = webdriver.ActionChains(self.browser)
+
+        next = True
+        
+        while next:
+            follows = following_list.find_elements_by_xpath("//*[contains(text(), 'Follow')]")
+
+            for follow in follows:
+                try:
+                    time.sleep(2)
+
+                    if follow.text == "Follow":
+                        try:
+                            username = follow.find_element_by_xpath("..").find_element_by_xpath("..").find_element_by_xpath(".//*[@class='FPmhX ']").text
+                        except Exception as identifier:
+                            username = ""
+
+                        follow.click()
+
+                        time.sleep(2)
+
+                        message = "success follow {}".format(username)
+
+                        self.push_notice("success", message)
+
+                        self.create_history(message)
+                        print(message)
+
+                        time.sleep(random.randint(5, 20))
+                except Exception as identifier:
+                    print(identifier)
+                    pass
+
+            actionChain.key_down(Keys.CONTROL).click(following_list).key_up(Keys.CONTROL).perform()
+            actionChain.key_down(Keys.SPACE).key_up(Keys.SPACE).perform()
+
+            if len(follows) == 0:
+                next = False
 
         self.browser.close()

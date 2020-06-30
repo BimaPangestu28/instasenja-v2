@@ -17,11 +17,14 @@ from app import models
 
 
 class WebDriver():
-    def __init__(self, data):
+    def __init__(self, data, mobile=False):
         chromeOptions = webdriver.ChromeOptions()
-        chromeOptions.add_argument("--start-maximized")
         chromeOptions.add_experimental_option(
             "prefs", {"intl.accept_languages": "en,en_US"})
+        chromeOptions.add_argument("--start-maximized")
+
+        if mobile:
+            chromeOptions.add_experimental_option("mobileEmulation", { "deviceName": "Nexus 5" })
 
         self.browser = webdriver.Chrome(
             executable_path=ChromeDriverManager().install(), options=chromeOptions)

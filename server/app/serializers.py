@@ -52,3 +52,16 @@ class PayloadActionGetDataFromCompetitorSerializer(serializers.Serializer):
     username_competitor = serializers.CharField()
     total_follow = serializers.IntegerField()
     random_code = serializers.CharField()
+
+class PayloadActionMultiplePostSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    image = serializers.CharField()
+    description = serializers.CharField()
+    accounts = serializers.ListField()
+    random_code = serializers.CharField()
+
+class PayloadActionFollowFromPostSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    username = serializers.CharField()
+    password = serializers.CharField()
+    random_code = serializers.CharField()
