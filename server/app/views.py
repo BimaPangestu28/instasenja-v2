@@ -3,7 +3,7 @@ from app import serializers
 from app.utils.instagram import Instagram
 from app.utils.scraping import Scraping
 from rest_framework.response import Response
-from .models import Bot, FakeComment, History, Contact
+from .models import Bot, FakeComment, History, Contact, Account
 
 class ActionLikeCommentPostView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionLikeCommentPostSerializer
@@ -176,3 +176,47 @@ class ActionFollowFromPostView(generics.CreateAPIView):
         instagram.follow_from_post(serializer.data["url"])
 
         return Response(data={}, status=200)
+
+class AccountListCreateView(generics.ListCreateAPIView):
+    """API untuk menampilkan dan membuat Account """
+    queryset = Account.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AccountSerializer
+        elif self.request.method == "POST":
+            return serializers.PayloadAccountSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            account = Account.objects.create(**serializer.data)
+
+            return Response(data=serializers.AccountSerializer(account, many=False).data, status=200)
+        except Exception as identifier:
+            return Response(data={"message": str(identifier)}, status=400)
+
+class AccountRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """API untuk mengambil data, update dan menghapus Account"""
+    queryset = Account.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AccountSerializer
+        elif self.request.method == "PUT":
+            return serializers.PayloadAccountSerializer
+
+    def put(self, request, pk):
+        account = Account.objects.filter(pk=pk)
+
+        if account.count() > 0:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            account.update(**serializer.data)
+
+            return Response(data=serializers.AccountSerializer(account.first(), many=False).data, status=200)
+        else:
+            return Response(data={"message": "Account not found"}, status=404)

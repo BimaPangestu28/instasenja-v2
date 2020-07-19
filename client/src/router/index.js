@@ -17,6 +17,12 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/BotAccount.vue"),
   },
   {
+    path: "/account",
+    name: "Account",
+    component: () =>
+      import(/* webpackChunkName: "account" */ "../views/Account.vue"),
+  },
+  {
     path: "/fake-comment",
     name: "FakeComment",
     component: () =>

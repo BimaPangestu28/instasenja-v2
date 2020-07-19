@@ -17,6 +17,9 @@ urlpatterns = [
     path("fake-comments", views.FakeCommentListCreateView.as_view()),
     path("fake-comments/<int:pk>", views.FakeCommentRetrieveUpdateDestroyView.as_view()),
 
+    path("accounts", views.AccountListCreateView.as_view()),
+    path("accounts/<int:pk>", views.AccountRetrieveUpdateDestroyView.as_view()),
+
     path("histories", views.ListHistoryView.as_view()),
     path("contacts", views.ListContactView.as_view()),
 ]

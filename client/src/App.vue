@@ -116,6 +116,15 @@
                           data-menu-toggle="click"
                           aria-haspopup="true"
                         >
+                          <router-link :to="{ name: 'Account' }" class="menu-link menu-toggle">
+                            <span class="menu-text">Account Instagram</span>
+                          </router-link>
+                        </li>
+                        <li
+                          class="menu-item menu-item-submenu menu-item-rel"
+                          data-menu-toggle="click"
+                          aria-haspopup="true"
+                        >
                           <router-link :to="{ name: 'BotAccount' }" class="menu-link menu-toggle">
                             <span class="menu-text">Account Bot</span>
                           </router-link>

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Bot, FakeComment, History, Contact
+from .models import Bot, FakeComment, History, Contact, Account
 
 class PayloadActionLikeCommentPostSerializer(serializers.Serializer):
     total_comment = serializers.IntegerField()
@@ -9,8 +9,7 @@ class PayloadActionLikeCommentPostSerializer(serializers.Serializer):
     random_code = serializers.CharField()
 
 class PayloadActionUnfollowSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField()
+    account_id = serializers.CharField()
     total_unfollow = serializers.IntegerField()
     random_code = serializers.CharField()
 
@@ -20,6 +19,15 @@ class BotSerializer(serializers.ModelSerializer):
         fields = ("__all__")
 
 class PayloadBotSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ("id", "username",)
+
+class PayloadAccountSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
@@ -47,8 +55,7 @@ class PayloadScrapeSerializer(serializers.Serializer):
     random_code = serializers.CharField()
 
 class PayloadActionGetDataFromCompetitorSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField()
+    account_id = serializers.CharField()
     username_competitor = serializers.CharField()
     total_follow = serializers.IntegerField()
     random_code = serializers.CharField()
@@ -62,6 +69,5 @@ class PayloadActionMultiplePostSerializer(serializers.Serializer):
 
 class PayloadActionFollowFromPostSerializer(serializers.Serializer):
     url = serializers.CharField()
-    username = serializers.CharField()
-    password = serializers.CharField()
+    account_id = serializers.CharField()
     random_code = serializers.CharField()

@@ -113,27 +113,23 @@
             <form class="form">
               <div class="card-body">
                 <div class="form-group row">
-                  <div class="col-lg-4">
-                    <label>Username:</label>
-                    <input
+                  <div class="col-lg-6">
+                    <label>Account:</label>
+                    <select
                       type="text"
                       class="form-control"
-                      placeholder="Enter username"
-                      v-model="data.username"
-                    />
-                    <span class="form-text text-muted">Please enter your username</span>
+                      placeholder="Select account"
+                      v-model="data.account_id"
+                    >
+                      <option
+                        :value="account.id"
+                        v-for="account in accounts"
+                        :key="account.username"
+                      >{{ account.username }}</option>
+                    </select>
+                    <span class="form-text text-muted">Please select your account</span>
                   </div>
-                  <div class="col-lg-4">
-                    <label>Password:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter password"
-                      v-model="data.password"
-                    />
-                    <span class="form-text text-muted">Please enter your password</span>
-                  </div>
-                  <div class="col-lg-4">
+                  <div class="col-lg-6">
                     <label>URL Instagram Post:</label>
                     <input
                       type="text"
@@ -236,29 +232,23 @@
             <form class="form">
               <div class="card-body">
                 <div class="form-group row">
-                  <div class="col-lg-6">
-                    <label>Username:</label>
-                    <input
+                  <div class="col-lg-4">
+                    <label>Account:</label>
+                    <select
                       type="text"
                       class="form-control"
-                      placeholder="Enter username"
-                      v-model="data.username"
-                    />
-                    <span class="form-text text-muted">Please enter your username</span>
+                      placeholder="Select account"
+                      v-model="data.account_id"
+                    >
+                      <option
+                        :value="account.id"
+                        v-for="account in accounts"
+                        :key="account.username"
+                      >{{ account.username }}</option>
+                    </select>
+                    <span class="form-text text-muted">Please select your account</span>
                   </div>
-                  <div class="col-lg-6">
-                    <label>Password:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter password"
-                      v-model="data.password"
-                    />
-                    <span class="form-text text-muted">Please enter your password</span>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-4">
                     <label>Username Competitor:</label>
                     <input
                       type="text"
@@ -268,7 +258,7 @@
                     />
                     <span class="form-text text-muted">Please enter your username competitor</span>
                   </div>
-                  <div class="col-lg-6">
+                  <div class="col-lg-4">
                     <label>Total Folow:</label>
                     <input
                       type="text"
@@ -301,27 +291,23 @@
             <form class="form">
               <div class="card-body">
                 <div class="form-group row">
-                  <div class="col-lg-4">
-                    <label>Username:</label>
-                    <input
+                  <div class="col-lg-6">
+                    <label>Account:</label>
+                    <select
                       type="text"
                       class="form-control"
-                      placeholder="Enter username"
-                      v-model="data.username"
-                    />
-                    <span class="form-text text-muted">Please enter your username</span>
+                      placeholder="Select account"
+                      v-model="data.account_id"
+                    >
+                      <option
+                        :value="account.id"
+                        v-for="account in accounts"
+                        :key="account.username"
+                      >{{ account.username }}</option>
+                    </select>
+                    <span class="form-text text-muted">Please select your account</span>
                   </div>
-                  <div class="col-lg-4">
-                    <label>Password:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter password"
-                      v-model="data.password"
-                    />
-                    <span class="form-text text-muted">Please enter your password</span>
-                  </div>
-                  <div class="col-lg-4">
+                  <div class="col-lg-6">
                     <label>Total unfollow:</label>
                     <input
                       type="text"
@@ -502,6 +488,7 @@ export default {
       onProcess: false,
       percentage: 0,
       totalProcess: 0,
+      accounts: [],
 
       notices: [],
       randomCode: Math.floor(Math.random() * 100) + 1,
@@ -516,6 +503,7 @@ export default {
         total_unfollow: 0,
         username_competitor: "",
         total_follow: 0,
+        account_id: "",
         accounts: [
           {
             username: "",
@@ -585,7 +573,8 @@ export default {
           password: "",
           total_unfollow: 0,
           username_competitor: "",
-          total_follow: 0
+          total_follow: 0,
+          account_id: ""
         };
       });
     }
@@ -593,6 +582,10 @@ export default {
 
   mounted() {
     var channel = this.$pusher.subscribe("notice");
+
+    axios.get("http://localhost:8001/api/v1/accounts?limit=999").then(data => {
+      this.accounts = data.data.results;
+    });
 
     channel.bind("log-" + this.randomCode, data => {
       data.datetime = new Date();
