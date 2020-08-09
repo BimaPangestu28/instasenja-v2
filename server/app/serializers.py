@@ -71,3 +71,8 @@ class PayloadActionFollowFromPostSerializer(serializers.Serializer):
     url = serializers.CharField()
     account_id = serializers.CharField()
     random_code = serializers.CharField()
+
+class ActionLikeByTagSerializer(serializers.Serializer):
+    account_id = serializers.CharField()
+    total_like = serializers.IntegerField()
+    tag = serializers.CharField()

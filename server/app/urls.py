@@ -10,6 +10,7 @@ urlpatterns = [
     path("actions/follow-from-competitor", views.ActionFollowFromCompetitorView.as_view()),
     path("actions/multiple-post", views.ActionMultiplePostView.as_view()),
     path("actions/follow-from-post", views.ActionFollowFromPostView.as_view()),
+    path("actions/like-by-tag", views.ActonLikeByTagView.as_view()),
 
     path("bots", views.BotListCreateView.as_view()),
     path("bots/<int:pk>", views.BotRetrieveUpdateDestroyView.as_view()),

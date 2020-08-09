@@ -5,6 +5,20 @@ from app.utils.scraping import Scraping
 from rest_framework.response import Response
 from .models import Bot, FakeComment, History, Contact, Account
 
+
+class ActonLikeByTagView(generics.CreateAPIView):
+    serializer_class = serializers.ActionLikeByTagSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        instagram = Instagram()
+        instagram.like_by_tags(**serializer.data)
+
+        return Response(data={}, status=200)
+
+
 class ActionLikeCommentPostView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionLikeCommentPostSerializer
 
@@ -17,6 +31,7 @@ class ActionLikeCommentPostView(generics.CreateAPIView):
 
         return Response(data={}, status=200)
 
+
 class ActionUnfollowView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionUnfollowSerializer
 
@@ -28,6 +43,7 @@ class ActionUnfollowView(generics.CreateAPIView):
         instagram.unfollow()
 
         return Response(data={}, status=200)
+
 
 class BotListCreateView(generics.ListCreateAPIView):
     """API untuk menampilkan dan membuat Account Bot / Fake Account"""
@@ -49,6 +65,7 @@ class BotListCreateView(generics.ListCreateAPIView):
             return Response(data=serializers.BotSerializer(bot, many=False).data, status=200)
         except Exception as identifier:
             return Response(data={"message": str(identifier)}, status=400)
+
 
 class BotRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """API untuk mengambil data, update dan menghapus Fake Comment"""
@@ -73,6 +90,7 @@ class BotRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response(data={"message": "Bot not found"}, status=404)
 
+
 class FakeCommentListCreateView(generics.ListCreateAPIView):
     """API untuk menampilkan dan membuat Account Fake Comment """
     queryset = FakeComment.objects.all()
@@ -93,6 +111,7 @@ class FakeCommentListCreateView(generics.ListCreateAPIView):
             return Response(data=serializers.FakeCommentSerializer(fake_comment, many=False).data, status=200)
         except Exception as identifier:
             return Response(data={"message": str(identifier)}, status=400)
+
 
 class FakeCommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """API untuk mengambil data, update dan menghapus Fake Comment"""
@@ -117,17 +136,20 @@ class FakeCommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
         else:
             return Response(data={"message": "Fake comment not found"}, status=404)
 
+
 class ListHistoryView(generics.ListAPIView):
     queryset = History.objects.all()
     serializer_class = serializers.HistorySerializer
 
     ordering_fields = ["id"]
 
+
 class ListContactView(generics.ListAPIView):
     queryset = Contact.objects.all()
     serializer_class = serializers.ContactSerializer
 
     ordering_fields = ["id"]
+
 
 class ActionScrapingDataView(generics.CreateAPIView):
     serializer_class = serializers.PayloadScrapeSerializer
@@ -141,6 +163,7 @@ class ActionScrapingDataView(generics.CreateAPIView):
 
         return Response(data={}, status=200)
 
+
 class ActionFollowFromCompetitorView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionGetDataFromCompetitorSerializer
 
@@ -149,9 +172,11 @@ class ActionFollowFromCompetitorView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         instagram = Instagram(serializer.data)
-        instagram.follow_from_competitor(serializer.data["username_competitor"], serializer.data["total_follow"])
+        instagram.follow_from_competitor(
+            serializer.data["username_competitor"], serializer.data["total_follow"])
 
         return Response(data={}, status=200)
+
 
 class ActionMultiplePostView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionMultiplePostSerializer
@@ -161,9 +186,11 @@ class ActionMultiplePostView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         instagram = Instagram(serializer.data, mobile=True)
-        instagram.multiple_post(serializer.data["title"], serializer.data["description"], serializer.data["image"], serializer.data["accounts"])
+        instagram.multiple_post(serializer.data["title"], serializer.data["description"],
+                                serializer.data["image"], serializer.data["accounts"])
 
         return Response(data={}, status=200)
+
 
 class ActionFollowFromPostView(generics.CreateAPIView):
     serializer_class = serializers.PayloadActionFollowFromPostSerializer
@@ -176,6 +203,7 @@ class ActionFollowFromPostView(generics.CreateAPIView):
         instagram.follow_from_post(serializer.data["url"])
 
         return Response(data={}, status=200)
+
 
 class AccountListCreateView(generics.ListCreateAPIView):
     """API untuk menampilkan dan membuat Account """
@@ -197,6 +225,7 @@ class AccountListCreateView(generics.ListCreateAPIView):
             return Response(data=serializers.AccountSerializer(account, many=False).data, status=200)
         except Exception as identifier:
             return Response(data={"message": str(identifier)}, status=400)
+
 
 class AccountRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """API untuk mengambil data, update dan menghapus Account"""

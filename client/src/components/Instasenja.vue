@@ -45,6 +45,14 @@
                 <span class="nav-text">Multiple Post</span>
               </a>
             </li>
+            <li class="nav-item">
+              <a
+                :class="{'nav-link': true, 'active': tabSelect == 'like by tag'}"
+                @click="tabSelect = 'like by tag'"
+              >
+                <span class="nav-text">Like by hastag</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -155,6 +163,68 @@
             </form>
           </div>
           <!-- End :: Follow From Post -->
+
+          <!-- Start :: Like By Hastag -->
+          <div
+            :class="{'tab-pane': true, 'fade': true, 'active': tabSelect == 'like by tag', 'show': tabSelect == 'like by tag'}"
+            role="tabpanel"
+            v-if="!onProcess"
+          >
+            <form class="form">
+              <div class="card-body">
+                <div class="form-group row">
+                  <div class="col-lg-4">
+                    <label>Account:</label>
+                    <select
+                      type="text"
+                      class="form-control"
+                      placeholder="Select account"
+                      v-model="data.account_id"
+                    >
+                      <option
+                        :value="account.id"
+                        v-for="account in accounts"
+                        :key="account.username"
+                      >{{ account.username }}</option>
+                    </select>
+                    <span class="form-text text-muted">Please select your account</span>
+                  </div>
+                  <div class="col-lg-4">
+                    <label>Total Like:</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      placeholder="Enter url instagram bot"
+                      v-model="data.total_like"
+                    />
+                    <span class="form-text text-muted">Please enter your total like</span>
+                  </div>
+                  <div class="col-lg-4">
+                    <label>Hastag:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter hastah"
+                      v-model="data.tag"
+                    />
+                    <span class="form-text text-muted">Please enter your hastag</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <button
+                      type="reset"
+                      class="btn btn-primary form-control"
+                      @click="process('like by tag')"
+                    >Proses</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- End :: Like By Hastag -->
 
           <div
             :class="{'tab-pane': true, 'fade': true, 'active': tabSelect == 'auto like & comment', 'show': tabSelect == 'auto like & comment'}"
@@ -504,6 +574,7 @@ export default {
         username_competitor: "",
         total_follow: 0,
         account_id: "",
+        tag: "",
         accounts: [
           {
             username: "",
@@ -558,6 +629,10 @@ export default {
           url = "http://localhost:8001/api/v1/actions/follow-from-post";
           break;
 
+        case "like by tag":
+          url = "http://localhost:8001/api/v1/actions/like-by-tag";
+          break;
+
         default:
           break;
       }
@@ -574,7 +649,8 @@ export default {
           total_unfollow: 0,
           username_competitor: "",
           total_follow: 0,
-          account_id: ""
+          account_id: "",
+          tag: ""
         };
       });
     }

@@ -14,8 +14,9 @@ import base64
 import os
 import string
 
+
 class Instagram(WebDriver):
-    def __init__(self, data, mobile=False):
+    def __init__(self, data=None, mobile=False):
         super().__init__(data, mobile)
 
     def redirect_to_login_page(self):
@@ -25,7 +26,8 @@ class Instagram(WebDriver):
         self.browser.get("https://www.instagram.com/{}/".format(username))
 
     def redirect_to_user_following(self, username):
-        self.browser.get("https://www.instagram.com/{}/following/".format(username))
+        self.browser.get(
+            "https://www.instagram.com/{}/following/".format(username))
 
     def redirect_to(self, url):
         self.browser.get(url)
@@ -45,34 +47,22 @@ class Instagram(WebDriver):
 
         time.sleep(5)
 
-    def logout(self):
+    def logout(self, username):
         print("=========== Logout Phase ===========")
-        try:
-            self.browserWait.until(
-                presence_of_all_elements_located((By.CLASS_NAME, "Fifk5")))[4].click()
-        except Exception as identifier:
-            self.browserWait.until(
-                presence_of_all_elements_located((By.CLASS_NAME, "Fifk5")))[3].click()
+
+        self.redirect_to("https://www.instagram.com/{}/".format(username))
 
         time.sleep(3)
 
-        try:
-            self.browserWait.until(
-                presence_of_all_elements_located((By.CLASS_NAME, "aOOlW")))[7].click()
-        except Exception as identifier:
-            self.browserWait.until(
-                presence_of_all_elements_located((By.CLASS_NAME, "_8-yf5")))[0].click()
+        self.browser.find_element_by_xpath(
+            '//*[@id="react-root"]/section/main/div/header/section/div[1]/div[2]/button').click()
 
-            time.sleep(3)
+        time.sleep(3)
 
-            self.browserWait.until(
-                presence_of_all_elements_located((By.CLASS_NAME, "aOOlW")))[8].click()
+        self.browser.find_element_by_xpath(
+            '/html/body/div[4]/div/div/div/div/button[9]').click()
 
-            try:
-                self.browserWait.until(
-                    presence_of_all_elements_located((By.CLASS_NAME, "aOOlW")))[0].click()
-            except Exception as identifier:
-                pass
+        time.sleep(5)
 
     def like_post(self, username):
         print("Running like post using {}".format(username))
@@ -104,7 +94,8 @@ class Instagram(WebDriver):
                 print(message)
         except Exception as identifier:
             print(traceback.format_exc())
-            message = "{} failed like post because {}".format(username, str(identifier))
+            message = "{} failed like post because {}".format(
+                username, str(identifier))
             self.push_notice("error", message)
 
             self.create_history(message)
@@ -119,24 +110,22 @@ class Instagram(WebDriver):
     def like_comment_post(self):
         self.randomCode = self.data["random_code"]
 
-        count = models.Bot.objects.count()
+        for url in self.data["url"].split(","):
+            
+            total_like = 0
+            total_comment = 0
+            count = models.Bot.objects.count()
+            random_object = models.Bot.objects.order_by("?").all()
 
-        random_object = models.Bot.objects.order_by("?").all()
+            for bot in random_object:
+                try:
+                    if self.data["total_like"] > 0:
+                        if total_like <= self.data["total_like"]:
+                            print("break")
+                            break
 
-        total_comment = 0
-        total_like = 0
-
-        for bot in random_object:
-            try:
-                if self.data["total_like"] > 0:
-                    if total_like <= self.data["total_like"]:
-                        print("break")
-                        break
-
-                self.login(bot.username, bot.password)
-                time.sleep(3)
-                for url in self.data["url"].split(","):
-                    print(url)
+                    self.login(bot.username, bot.password)
+                    time.sleep(3)
                     self.redirect_to(url)
 
                     time.sleep(3)
@@ -144,16 +133,18 @@ class Instagram(WebDriver):
                     self.like_post(bot.username)
 
                     time.sleep(3)
-                self.logout()
-                time.sleep(5)
-            except Exception as identifier:
-                print(identifier)
-                pass
+                    self.logout(bot.username)
+                    time.sleep(5)
+                except Exception as identifier:
+                    # print(traceback.format_exc())
+                    print(str(identifier))
+                    pass
 
         self.browser.close()
 
     def unfollow(self):
-        account = models.Account.objects.filter(id=self.data["account_id"]).first()
+        account = models.Account.objects.filter(
+            id=self.data["account_id"]).first()
 
         self.login(account.username, account.password)
 
@@ -171,7 +162,7 @@ class Instagram(WebDriver):
 
         following_list.click()
         actionChain = webdriver.ActionChains(self.browser)
-        
+
         while total_unfollow <= self.data["total_unfollow"]:
             for follow in following_list.find_elements_by_xpath("//*[contains(text(), 'Following')]"):
                 if total_unfollow <= self.data["total_unfollow"]:
@@ -183,7 +174,8 @@ class Instagram(WebDriver):
                         confirmationButton = self.browserWait.until(
                             presence_of_element_located((By.CLASS_NAME, '-Cab_')))
 
-                        username = follow.find_elements_by_xpath("//*[contains(text(), 'Unfollow')]")[0].text
+                        username = follow.find_elements_by_xpath(
+                            "//*[contains(text(), 'Unfollow')]")[0].text
 
                         time.sleep(2)
 
@@ -191,7 +183,8 @@ class Instagram(WebDriver):
 
                         total_unfollow += 1
 
-                        message = "{} success unfollow {}".format(account.username, username.split("Unfollow @")[1].split("?")[0])
+                        message = "{} success unfollow {}".format(
+                            account.username, username.split("Unfollow @")[1].split("?")[0])
 
                         self.push_notice("success", message)
 
@@ -202,13 +195,15 @@ class Instagram(WebDriver):
                     except Exception as identifier:
                         pass
 
-            actionChain.key_down(Keys.CONTROL).click(following_list).key_up(Keys.CONTROL).perform()
+            actionChain.key_down(Keys.CONTROL).click(
+                following_list).key_up(Keys.CONTROL).perform()
             actionChain.key_down(Keys.SPACE).key_up(Keys.SPACE).perform()
 
         self.browser.close()
 
     def follow_from_competitor(self, username_competitor, total_follow):
-        account = models.Account.objects.filter(id=self.data["account_id"]).first()
+        account = models.Account.objects.filter(
+            id=self.data["account_id"]).first()
 
         self.login(account.username, account.password)
 
@@ -226,7 +221,7 @@ class Instagram(WebDriver):
 
         following_list.click()
         actionChain = webdriver.ActionChains(self.browser)
-        
+
         while total_follow <= self.data["total_follow"]:
             for follow in following_list.find_elements_by_xpath("//*[contains(text(), 'Follow')]"):
                 try:
@@ -254,7 +249,8 @@ class Instagram(WebDriver):
                     print(identifier)
                     pass
 
-            actionChain.key_down(Keys.CONTROL).click(following_list).key_up(Keys.CONTROL).perform()
+            actionChain.key_down(Keys.CONTROL).click(
+                following_list).key_up(Keys.CONTROL).perform()
             actionChain.key_down(Keys.SPACE).key_up(Keys.SPACE).perform()
 
         self.browser.close()
@@ -265,7 +261,7 @@ class Instagram(WebDriver):
 
     def multiple_post(self, title, description, image, accounts):
         image_path = os.getcwd() + "/assets/images/" + self.randomString(20) + ".png"
-        
+
         with open(image_path, "wb") as fh:
             fh.write(base64.b64decode(image.split("data:image/png;base64")[1]))
 
@@ -277,31 +273,37 @@ class Instagram(WebDriver):
 
             try:
                 self.browserWait.until(
-                presence_of_element_located((By.XPATH, "//*[contains(text(), 'Cancel')]"))).click()
+                    presence_of_element_located((By.XPATH, "//*[contains(text(), 'Cancel')]"))).click()
             except Exception as identifier:
                 pass
 
             time.sleep(4)
 
             try:
-                self.browserWait.until(presence_of_element_located((By.XPATH, "//*[contains(text(), 'Not Now')]"))).click()
+                self.browserWait.until(presence_of_element_located(
+                    (By.XPATH, "//*[contains(text(), 'Not Now')]"))).click()
             except Exception as identifier:
                 pass
 
             # self.browser.find_elements_by_xpath('//*[@aria-label="New Post"]')[0].click()
             # self.browser.switch_to.active_element.send_keys(image_path)
-            self.browser.find_elements_by_xpath('//*[@class="tb_sK"]')[3].send_keys(image_path)
-            self.browser.find_elements_by_xpath('//*[@class="Q9en_"]')[0].submit()
+            self.browser.find_elements_by_xpath(
+                '//*[@class="tb_sK"]')[3].send_keys(image_path)
+            self.browser.find_elements_by_xpath(
+                '//*[@class="Q9en_"]')[0].submit()
 
             time.sleep(2)
-            self.browser.find_elements_by_xpath('//*[contains(text(), "Next")]')[0].click()
-            self.browser.find_elements_by_xpath('//*[@aria-label="Write a caption…"]')[0].send_keys(description)
+            self.browser.find_elements_by_xpath(
+                '//*[contains(text(), "Next")]')[0].click()
+            self.browser.find_elements_by_xpath(
+                '//*[@aria-label="Write a caption…"]')[0].send_keys(description)
             time.sleep(2)
-            self.browser.find_elements_by_xpath('//*[contains(text(), "Share")]')[0].click()
-
+            self.browser.find_elements_by_xpath(
+                '//*[contains(text(), "Share")]')[0].click()
 
     def follow_from_post(self, urls):
-        account = models.Account.objects.filter(id=self.data["account_id"]).first()
+        account = models.Account.objects.filter(
+            id=self.data["account_id"]).first()
 
         # Login instagram
         self.login(account.username, account.password)
@@ -315,20 +317,23 @@ class Instagram(WebDriver):
             time.sleep(3)
 
             # Klik daftar menyukai
-            self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/div[1]/article/div[2]/section[2]/div/div/button').click()
+            self.browser.find_element_by_xpath(
+                '//*[@id="react-root"]/section/main/div/div[1]/article/div[2]/section[2]/div/div/button').click()
 
             time.sleep(3)
 
             # Ambil data pengguna yang menyukai
-            following_list = self.browser.find_element_by_xpath('/html/body/div[4]/div/div/div[2]/div/div')
+            following_list = self.browser.find_element_by_xpath(
+                '/html/body/div[4]/div/div/div[2]/div/div')
 
             following_list.click()
             actionChain = webdriver.ActionChains(self.browser)
 
             next = True
-            
+
             while next:
-                follows = following_list.find_elements_by_xpath("//*[contains(text(), 'Follow')]")
+                follows = following_list.find_elements_by_xpath(
+                    "//*[contains(text(), 'Follow')]")
 
                 for follow in follows:
                     try:
@@ -336,7 +341,8 @@ class Instagram(WebDriver):
 
                         if follow.text == "Follow":
                             try:
-                                username = follow.find_element_by_xpath("..").find_element_by_xpath("..").find_element_by_xpath(".//*[@class='FPmhX ']").text
+                                username = follow.find_element_by_xpath("..").find_element_by_xpath(
+                                    "..").find_element_by_xpath(".//*[@class='FPmhX ']").text
                             except Exception as identifier:
                                 username = ""
 
@@ -356,10 +362,50 @@ class Instagram(WebDriver):
                         print(identifier)
                         pass
 
-                actionChain.key_down(Keys.CONTROL).click(following_list).key_up(Keys.CONTROL).perform()
+                actionChain.key_down(Keys.CONTROL).click(
+                    following_list).key_up(Keys.CONTROL).perform()
                 actionChain.key_down(Keys.SPACE).key_up(Keys.SPACE).perform()
 
                 if len(follows) == 0:
                     next = False
+
+        self.browser.close()
+
+    def like_by_tags(self, **data):
+        account = models.Account.objects.filter(id=data["account_id"]).first()
+        xpath_post = '//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]/div[1]'
+        xpath_like = "/html/body/div[4]/div[2]/div/article/div/div[3]/section[1]/span[1]/button/div"
+        xpath_next = "/html/body/div[4]/div[1]/div/div/a"
+
+        # Login instagram
+        self.login(account.username, account.password)
+
+        time.sleep(3)
+
+        self.redirect_to(
+            "https://www.instagram.com/explore/tags/{}/".format(data["tag"]))
+
+        time.sleep(3)
+
+        self.browser.find_element_by_xpath(xpath_post).click()
+
+        time.sleep(3)
+
+        for i in range(data["total_like"]):
+            try:
+                self.browser.find_element_by_xpath(xpath_like).click()
+
+                time.sleep(3)
+
+                next_button = self.browser.find_elements_by_xpath(xpath_next)
+
+                if len(next_button) == 1:
+                    next_button[0].click()
+                else:
+                    next_button[1].click()
+
+                time.sleep(random.randint(2, 15))
+            except Exception as identifier:
+                print("error")
 
         self.browser.close()
